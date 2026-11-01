@@ -1,0 +1,72 @@
+{
+  "apiDescription": "Simulated Payment Gateway REST Service for Lab 2",
+  "endpoint": {
+    "url": "http://localhost:8085/api/payment/process",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  },
+  "sampleRequests": [
+    {
+      "scenario": "Successful Payment",
+      "requestPayload": {
+        "orderId": "ORD-501",
+        "customerId": "CUST-9901",
+        "amount": 750.0,
+        "paymentToken": "tok_visa_valid"
+      },
+      "responsePayload": {
+        "orderId": "ORD-501",
+        "paymentStatus": "SUCCESS",
+        "transactionId": "TXN-8849102",
+        "timestamp": "2026-11-01T20:00:00Z",
+        "message": "Payment authorized and captured successfully"
+      }
+    },
+    {
+      "scenario": "Declined Payment (Insufficient Funds)",
+      "requestPayload": {
+        "orderId": "ORD-502",
+        "customerId": "CUST-9902",
+        "amount": 1200.0,
+        "paymentToken": "tok_declined_funds"
+      },
+      "responsePayload": {
+        "orderId": "ORD-502",
+        "paymentStatus": "DECLINED",
+        "transactionId": null,
+        "timestamp": "2026-11-01T20:00:00Z",
+        "message": "Card declined: Insufficient funds"
+      }
+    },
+    {
+      "scenario": "Simulated Payment Gateway Outage / Incident Recovery",
+      "requestPayload": {
+        "orderId": "ORD-503",
+        "customerId": "CUST-FAIL",
+        "amount": 350.0,
+        "paymentToken": "tok_gateway_error"
+      },
+      "responsePayload": {
+        "error": "Payment Gateway Timeout 504 Gateway Unavailable",
+        "code": "PAYMENT_GATEWAY_DOWN"
+      }
+    }
+  ],
+  "camundaRestConnectorConfig": {
+    "taskDefinitionType": "io.camunda:http-json:1",
+    "inputs": {
+      "url": "http://localhost:8085/api/payment/process",
+      "method": "POST",
+      "body": {
+        "orderId": "=orderId",
+        "customerId": "=customerId",
+        "amount": "=orderTotal",
+        "paymentToken": "=paymentToken"
+      },
+      "resultVariable": "paymentResponse",
+      "resultExpression": "= { paymentStatus: response.body.paymentStatus, transactionId: response.body.transactionId }"
+    }
+  }
+}

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             id="Definitions_OrderPriorityDMN"
+             name="Order Priority Decision Model"
+             namespace="http://camunda.org/schema/1.0/dmn"
+             exporter="Camunda Modeler"
+             exporterVersion="5.20.0">
+  <decision id="Decision_OrderPriority" name="Order Priority Decision">
+    <decisionTable id="DecisionTable_OrderPriority" hitPolicy="FIRST">
+      <!-- Input 1: Order Total -->
+      <input id="Input_OrderTotal" label="Order Total">
+        <inputExpression id="InputExpr_OrderTotal" typeRef="number">
+          <text>orderTotal</text>
+        </inputExpression>
+      </input>
+      <!-- Input 2: Customer Category -->
+      <input id="Input_CustomerCategory" label="Customer Category">
+        <inputExpression id="InputExpr_CustomerCategory" typeRef="string">
+          <text>customerCategory</text>
+        </inputExpression>
+        <inputValues id="InputValues_CustomerCategory">
+          <text>"VIP","REGULAR","GUEST"</text>
+        </inputValues>
+      </input>
+      <!-- Input 3: Delivery Preference -->
+      <input id="Input_DeliveryPreference" label="Delivery Preference">
+        <inputExpression id="InputExpr_DeliveryPreference" typeRef="string">
+          <text>deliveryPreference</text>
+        </inputExpression>
+        <inputValues id="InputValues_DeliveryPreference">
+          <text>"EXPRESS","STANDARD"</text>
+        </inputValues>
+      </input>
+
+      <!-- Output 1: Priority -->
+      <output id="Output_OrderPriority" label="Order Priority" name="orderPriority" typeRef="string">
+        <outputValues id="OutputValues_OrderPriority">
+          <text>"HIGH","MEDIUM","LOW"</text>
+        </outputValues>
+      </output>
+      <!-- Output 2: SLA Hours -->
+      <output id="Output_SLAHours" label="Fulfilment SLA (Hours)" name="slaHours" typeRef="number" />
+      <!-- Output 3: Priority Reason -->
+      <output id="Output_PriorityReason" label="Priority Reason" name="priorityReason" typeRef="string" />
+
+      <!-- Rule 1: VIP Customer -->
+      <rule id="Rule_VIP_Priority">
+        <description>VIP customers receive highest priority</description>
+        <inputEntry id="IE_1_1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_1_2">
+          <text>"VIP"</text>
+        </inputEntry>
+        <inputEntry id="IE_1_3">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="OE_1_1">
+          <text>"HIGH"</text>
+        </outputEntry>
+        <outputEntry id="OE_1_2">
+          <text>4</text>
+        </outputEntry>
+        <outputEntry id="OE_1_3">
+          <text>"VIP customer tier gets 4-hour expedited handling"</text>
+        </outputEntry>
+      </rule>
+
+      <!-- Rule 2: High Value Order >= $1000 -->
+      <rule id="Rule_HighValue_Priority">
+        <description>Orders $1000 or greater</description>
+        <inputEntry id="IE_2_1">
+          <text>&gt;= 1000</text>
+        </inputEntry>
+        <inputEntry id="IE_2_2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_2_3">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="OE_2_1">
+          <text>"HIGH"</text>
+        </outputEntry>
+        <outputEntry id="OE_2_2">
+          <text>6</text>
+        </outputEntry>
+        <outputEntry id="OE_2_3">
+          <text>"High order value qualifies for expedited 6-hour dispatch"</text>
+        </outputEntry>
+      </rule>
+
+      <!-- Rule 3: Express Delivery Selection -->
+      <rule id="Rule_Express_Priority">
+        <description>Customer selected Express Delivery</description>
+        <inputEntry id="IE_3_1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_3_2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_3_3">
+          <text>"EXPRESS"</text>
+        </inputEntry>
+        <outputEntry id="OE_3_1">
+          <text>"HIGH"</text>
+        </outputEntry>
+        <outputEntry id="OE_3_2">
+          <text>8</text>
+        </outputEntry>
+        <outputEntry id="OE_3_3">
+          <text>"Customer paid for express shipping"</text>
+        </outputEntry>
+      </rule>
+
+      <!-- Rule 4: Moderate Value Regular Customer -->
+      <rule id="Rule_Medium_Priority">
+        <description>Regular customer between $200 and $999</description>
+        <inputEntry id="IE_4_1">
+          <text>[200..999]</text>
+        </inputEntry>
+        <inputEntry id="IE_4_2">
+          <text>"REGULAR"</text>
+        </inputEntry>
+        <inputEntry id="IE_4_3">
+          <text>"STANDARD"</text>
+        </inputEntry>
+        <outputEntry id="OE_4_1">
+          <text>"MEDIUM"</text>
+        </outputEntry>
+        <outputEntry id="OE_4_2">
+          <text>24</text>
+        </outputEntry>
+        <outputEntry id="OE_4_3">
+          <text>"Standard regular order fulfillment within 24 hours"</text>
+        </outputEntry>
+      </rule>
+
+      <!-- Rule 5: Low Priority Fallback -->
+      <rule id="Rule_Low_Priority">
+        <description>Standard / Guest orders below $200</description>
+        <inputEntry id="IE_5_1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_5_2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_5_3">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="OE_5_1">
+          <text>"LOW"</text>
+        </outputEntry>
+        <outputEntry id="OE_5_2">
+          <text>48</text>
+        </outputEntry>
+        <outputEntry id="OE_5_3">
+          <text>"Standard 48-hour fulfillment queue"</text>
+        </outputEntry>
+      </rule>
+
+    </decisionTable>
+  </decision>
+
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_OrderPriority">
+      <dmndi:DMNShape id="DMNShape_Decision_OrderPriority" dmnElementRef="Decision_OrderPriority">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

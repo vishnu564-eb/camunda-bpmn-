@@ -1,0 +1,60 @@
+{
+  "apiDescription": "Simulated Hospital Scheduling REST Service for Lab 3",
+  "endpoint": {
+    "url": "http://localhost:8085/api/hospital/slots",
+    "method": "GET",
+    "headers": {
+      "Accept": "application/json"
+    },
+    "queryParams": {
+      "specialty": "CARDIOLOGY",
+      "date": "2026-11-05"
+    }
+  },
+  "sampleRequests": [
+    {
+      "scenario": "Slots Available",
+      "queryString": "?specialty=CARDIOLOGY&date=2026-11-05",
+      "responsePayload": {
+        "status": "AVAILABLE",
+        "slotsAvailable": true,
+        "specialty": "CARDIOLOGY",
+        "appointmentDate": "2026-11-05",
+        "slotId": "SLOT-C8-101",
+        "slotTime": "10:30 AM",
+        "assignedDoctor": "Dr. Gregory House",
+        "roomNumber": "B-204"
+      }
+    },
+    {
+      "scenario": "No Slots Available (Fully Booked)",
+      "queryString": "?specialty=NEUROLOGY&date=2026-11-05",
+      "responsePayload": {
+        "status": "UNAVAILABLE",
+        "slotsAvailable": false,
+        "specialty": "NEUROLOGY",
+        "appointmentDate": "2026-11-05",
+        "slotId": null,
+        "slotTime": null,
+        "message": "All clinical slots fully booked for requested specialty and date"
+      }
+    },
+    {
+      "scenario": "Simulated Scheduling API Outage / Incident Recovery",
+      "queryString": "?specialty=FAIL_TEST&date=2026-11-05",
+      "responsePayload": {
+        "error": "Scheduling Service 503 Service Unavailable",
+        "code": "SCHEDULING_SERVICE_DOWN"
+      }
+    }
+  ],
+  "camundaRestConnectorConfig": {
+    "taskDefinitionType": "io.camunda:http-json:1",
+    "inputs": {
+      "url": "http://localhost:8085/api/hospital/slots?specialty={{preferredSpecialty}}&date={{appointmentPreferenceDate}}",
+      "method": "GET",
+      "resultVariable": "schedulingResponse",
+      "resultExpression": "= { slotsAvailable: response.body.slotsAvailable, slotId: response.body.slotId, slotTime: response.body.slotTime, assignedDoctor: response.body.assignedDoctor }"
+    }
+  }
+}

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             id="Definitions_LoanApprovalDMN"
+             name="Loan Approval Decision Model"
+             namespace="http://camunda.org/schema/1.0/dmn"
+             exporter="Camunda Modeler"
+             exporterVersion="5.20.0">
+  <decision id="Decision_LoanApproval" name="Loan Approval Decision">
+    <decisionTable id="DecisionTable_LoanRules" hitPolicy="FIRST">
+      <!-- Input 1: Credit Score -->
+      <input id="Input_CreditScore" label="Credit Score">
+        <inputExpression id="InputExpr_CreditScore" typeRef="number">
+          <text>creditScore</text>
+        </inputExpression>
+      </input>
+      <!-- Input 2: Monthly Income -->
+      <input id="Input_MonthlyIncome" label="Monthly Income">
+        <inputExpression id="InputExpr_MonthlyIncome" typeRef="number">
+          <text>monthlyIncome</text>
+        </inputExpression>
+      </input>
+      <!-- Input 3: Requested Amount -->
+      <input id="Input_RequestedAmount" label="Requested Amount">
+        <inputExpression id="InputExpr_RequestedAmount" typeRef="number">
+          <text>requestedAmount</text>
+        </inputExpression>
+      </input>
+
+      <!-- Output 1: Decision Result -->
+      <output id="Output_LoanDecision" label="Loan Decision" name="loanDecision" typeRef="string">
+        <outputValues id="OutputValues_LoanDecision">
+          <text>"APPROVED","REJECTED","MANUAL_REVIEW"</text>
+        </outputValues>
+      </output>
+      <!-- Output 2: Decision Reason -->
+      <output id="Output_DecisionReason" label="Decision Reason" name="decisionReason" typeRef="string" />
+
+      <!-- Rule 1: High credit, safe multiplier => APPROVED -->
+      <rule id="Rule_Approve_HighCredit">
+        <description>High credit score and safe loan-to-income multiplier</description>
+        <inputEntry id="IE_1_1">
+          <text>&gt;= 720</text>
+        </inputEntry>
+        <inputEntry id="IE_1_2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_1_3">
+          <text>&lt;= (monthlyIncome * 10)</text>
+        </inputEntry>
+        <outputEntry id="OE_1_1">
+          <text>"APPROVED"</text>
+        </outputEntry>
+        <outputEntry id="OE_1_2">
+          <text>"Applicant has excellent credit score and safe income ratio"</text>
+        </outputEntry>
+      </rule>
+
+      <!-- Rule 2: Low credit => REJECTED -->
+      <rule id="Rule_Reject_LowCredit">
+        <description>Low credit score below 580</description>
+        <inputEntry id="IE_2_1">
+          <text>&lt; 580</text>
+        </inputEntry>
+        <inputEntry id="IE_2_2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_2_3">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="OE_2_1">
+          <text>"REJECTED"</text>
+        </outputEntry>
+        <outputEntry id="OE_2_2">
+          <text>"Credit score is below minimum acceptable threshold (580)"</text>
+        </outputEntry>
+      </rule>
+
+      <!-- Rule 3: Extreme Loan to Income Ratio => REJECTED -->
+      <rule id="Rule_Reject_ExcessiveLoan">
+        <description>Requested loan exceeds 20 times monthly income</description>
+        <inputEntry id="IE_3_1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_3_2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_3_3">
+          <text>&gt; (monthlyIncome * 20)</text>
+        </inputEntry>
+        <outputEntry id="OE_3_1">
+          <text>"REJECTED"</text>
+        </outputEntry>
+        <outputEntry id="OE_3_2">
+          <text>"Loan amount exceeds maximum multiplier (> 20x monthly income)"</text>
+        </outputEntry>
+      </rule>
+
+      <!-- Rule 4: Moderate Credit => MANUAL_REVIEW -->
+      <rule id="Rule_Review_ModerateCredit">
+        <description>Credit score between 580 and 719</description>
+        <inputEntry id="IE_4_1">
+          <text>[580..719]</text>
+        </inputEntry>
+        <inputEntry id="IE_4_2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_4_3">
+          <text>&lt;= (monthlyIncome * 12)</text>
+        </inputEntry>
+        <outputEntry id="OE_4_1">
+          <text>"MANUAL_REVIEW"</text>
+        </outputEntry>
+        <outputEntry id="OE_4_2">
+          <text>"Moderate credit profile requires manual underwriter review"</text>
+        </outputEntry>
+      </rule>
+
+      <!-- Rule 5: Fallback / Elevated DTI => MANUAL_REVIEW -->
+      <rule id="Rule_Review_Fallback">
+        <description>Borderline income or credit metrics</description>
+        <inputEntry id="IE_5_1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_5_2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_5_3">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="OE_5_1">
+          <text>"MANUAL_REVIEW"</text>
+        </outputEntry>
+        <outputEntry id="OE_5_2">
+          <text>"Application criteria require manual verification by credit committee"</text>
+        </outputEntry>
+      </rule>
+
+    </decisionTable>
+  </decision>
+
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_LoanApproval">
+      <dmndi:DMNShape id="DMNShape_Decision_LoanApproval" dmnElementRef="Decision_LoanApproval">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

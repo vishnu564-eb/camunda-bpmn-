@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             id="Definitions_PatientTriageDMN"
+             name="Patient Triage Decision Model"
+             namespace="http://camunda.org/schema/1.0/dmn"
+             exporter="Camunda Modeler"
+             exporterVersion="5.20.0">
+  <decision id="Decision_PatientTriage" name="Patient Triage Decision">
+    <decisionTable id="DecisionTable_PatientTriage" hitPolicy="FIRST">
+      <!-- Input 1: Pain Level -->
+      <input id="Input_PainLevel" label="Pain Level (1-10)">
+        <inputExpression id="InputExpr_PainLevel" typeRef="number">
+          <text>painLevel</text>
+        </inputExpression>
+      </input>
+      <!-- Input 2: Preexisting Condition -->
+      <input id="Input_PreexistingCondition" label="Has Preexisting Condition">
+        <inputExpression id="InputExpr_PreexistingCondition" typeRef="boolean">
+          <text>hasPreexistingCondition</text>
+        </inputExpression>
+      </input>
+      <!-- Input 3: Urgency Indicator -->
+      <input id="Input_UrgencyIndicator" label="Urgency Indicator">
+        <inputExpression id="InputExpr_UrgencyIndicator" typeRef="string">
+          <text>urgencyIndicator</text>
+        </inputExpression>
+        <inputValues id="InputValues_UrgencyIndicator">
+          <text>"HIGH","MODERATE","LOW"</text>
+        </inputValues>
+      </input>
+
+      <!-- Output 1: Triage Category -->
+      <output id="Output_TriageCategory" label="Triage Category" name="triageCategory" typeRef="string">
+        <outputValues id="OutputValues_TriageCategory">
+          <text>"URGENT_ASSESSMENT","PRIORITY_REVIEW","ROUTINE"</text>
+        </outputValues>
+      </output>
+      <!-- Output 2: Triage Protocol -->
+      <output id="Output_TriageProtocol" label="Triage Protocol" name="triageProtocol" typeRef="string" />
+      <!-- Output 3: Max Recommended Wait Hours -->
+      <output id="Output_MaxWaitHours" label="Max Wait (Hours)" name="maxWaitHours" typeRef="number" />
+
+      <!-- Rule 1: High Pain Level >= 8 -->
+      <rule id="Rule_Urgent_Pain">
+        <description>Critical pain level triggers emergency assessment</description>
+        <inputEntry id="IE_1_1">
+          <text>&gt;= 8</text>
+        </inputEntry>
+        <inputEntry id="IE_1_2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_1_3">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="OE_1_1">
+          <text>"URGENT_ASSESSMENT"</text>
+        </outputEntry>
+        <outputEntry id="OE_1_2">
+          <text>"Immediate Emergency Physician Clinical Protocol"</text>
+        </outputEntry>
+        <outputEntry id="OE_1_3">
+          <text>0</text>
+        </outputEntry>
+      </rule>
+
+      <!-- Rule 2: High Urgency Indicator -->
+      <rule id="Rule_Urgent_Indicator">
+        <description>Acute symptoms / high urgency indicator</description>
+        <inputEntry id="IE_2_1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_2_2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_2_3">
+          <text>"HIGH"</text>
+        </inputEntry>
+        <outputEntry id="OE_2_1">
+          <text>"URGENT_ASSESSMENT"</text>
+        </outputEntry>
+        <outputEntry id="OE_2_2">
+          <text>"Emergency Department Red Alert Protocol"</text>
+        </outputEntry>
+        <outputEntry id="OE_2_3">
+          <text>0</text>
+        </outputEntry>
+      </rule>
+
+      <!-- Rule 3: Moderate-High Pain Level [5..7] -->
+      <rule id="Rule_Priority_Pain">
+        <description>Significant pain requires rapid nurse triage</description>
+        <inputEntry id="IE_3_1">
+          <text>[5..7]</text>
+        </inputEntry>
+        <inputEntry id="IE_3_2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_3_3">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="OE_3_1">
+          <text>"PRIORITY_REVIEW"</text>
+        </outputEntry>
+        <outputEntry id="OE_3_2">
+          <text>"Rapid Assessment Nurse Triage Protocol"</text>
+        </outputEntry>
+        <outputEntry id="OE_3_3">
+          <text>2</text>
+        </outputEntry>
+      </rule>
+
+      <!-- Rule 4: Preexisting Condition with Moderate Indicator -->
+      <rule id="Rule_Priority_Comorbidity">
+        <description>Preexisting vulnerability requires staff clinical review</description>
+        <inputEntry id="IE_4_1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_4_2">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="IE_4_3">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="OE_4_1">
+          <text>"PRIORITY_REVIEW"</text>
+        </outputEntry>
+        <outputEntry id="OE_4_2">
+          <text>"Specialist Triage and Fast-Track Review"</text>
+        </outputEntry>
+        <outputEntry id="OE_4_3">
+          <text>4</text>
+        </outputEntry>
+      </rule>
+
+      <!-- Rule 5: Routine Fallback -->
+      <rule id="Rule_Routine_Standard">
+        <description>Mild or stable condition routed for routine scheduling</description>
+        <inputEntry id="IE_5_1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_5_2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="IE_5_3">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="OE_5_1">
+          <text>"ROUTINE"</text>
+        </outputEntry>
+        <outputEntry id="OE_5_2">
+          <text>"Direct Outpatient Scheduling Protocol"</text>
+        </outputEntry>
+        <outputEntry id="OE_5_3">
+          <text>48</text>
+        </outputEntry>
+      </rule>
+
+    </decisionTable>
+  </decision>
+
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_PatientTriage">
+      <dmndi:DMNShape id="DMNShape_Decision_PatientTriage" dmnElementRef="Decision_PatientTriage">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

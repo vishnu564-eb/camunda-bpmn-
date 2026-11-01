@@ -1,0 +1,88 @@
+{
+  "apiDescription": "Simulated Credit Assessment REST Service for Lab 1",
+  "endpoint": {
+    "url": "http://localhost:8085/api/credit-assessment",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  },
+  "sampleRequests": [
+    {
+      "scenario": "High Credit Score (Eligible)",
+      "requestPayload": {
+        "applicantId": "APP-1001",
+        "applicantName": "Alice Johnson",
+        "monthlyIncome": 6500.0,
+        "requestedAmount": 30000.0
+      },
+      "responsePayload": {
+        "applicantId": "APP-1001",
+        "creditScore": 750,
+        "creditTier": "EXCELLENT",
+        "status": "ASSESSED",
+        "riskScore": 12.5
+      }
+    },
+    {
+      "scenario": "Low Credit Score (Rejection)",
+      "requestPayload": {
+        "applicantId": "APP-1002",
+        "applicantName": "Bob Miller",
+        "monthlyIncome": 3200.0,
+        "requestedAmount": 80000.0
+      },
+      "responsePayload": {
+        "applicantId": "APP-1002",
+        "creditScore": 540,
+        "creditTier": "POOR",
+        "status": "ASSESSED",
+        "riskScore": 68.0
+      }
+    },
+    {
+      "scenario": "Moderate Credit Score (Manual Review)",
+      "requestPayload": {
+        "applicantId": "APP-1003",
+        "applicantName": "Carol Danvers",
+        "monthlyIncome": 4500.0,
+        "requestedAmount": 40000.0
+      },
+      "responsePayload": {
+        "applicantId": "APP-1003",
+        "creditScore": 660,
+        "creditTier": "FAIR",
+        "status": "ASSESSED",
+        "riskScore": 34.2
+      }
+    },
+    {
+      "scenario": "Simulated Service Error / Incident Recovery",
+      "requestPayload": {
+        "applicantId": "FAIL_TEST",
+        "applicantName": "Incident Test User",
+        "monthlyIncome": 5000.0,
+        "requestedAmount": 20000.0
+      },
+      "responsePayload": {
+        "error": "Simulated Service Outage 500 Internal Server Error",
+        "code": "CREDIT_SERVICE_DOWN"
+      }
+    }
+  ],
+  "camundaRestConnectorConfig": {
+    "taskDefinitionType": "io.camunda:http-json:1",
+    "inputs": {
+      "url": "http://localhost:8085/api/credit-assessment",
+      "method": "POST",
+      "body": {
+        "applicantId": "=applicantId",
+        "applicantName": "=applicantName",
+        "monthlyIncome": "=monthlyIncome",
+        "requestedAmount": "=requestedAmount"
+      },
+      "resultVariable": "creditAssessmentResponse",
+      "resultExpression": "= { creditScore: response.body.creditScore, creditTier: response.body.creditTier, riskScore: response.body.riskScore }"
+    }
+  }
+}
